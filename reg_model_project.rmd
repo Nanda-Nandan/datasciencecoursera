@@ -95,10 +95,12 @@ pairs(~audience_score+genre+thtr_rel_month+imdb_rating+critics_score+best_pic_no
 For modelling we will use linear regression and start by fitting a model with 11 variables(described in the previous section). Backward elimination will help us to define if better results can be obtained by using a smaller set of attributes. The advantage of backward elimination is that it allows to start with all the variables, deleting one variable at a time until there are no improvements in the model.
 
 here is an initial model with the 11 variables. The adjusted R-squared is 76.68%.
-```{r_initial_model}
+```{r}
 model<-lm(audience_score~genre+thtr_rel_month+imdb_rating+critics_score+best_pic_nom+best_actor_win+best_actress_win+top200_box+mpaa_rating+best_dir_win,data=interestdata)
 summary(model)
+
 ```
+
 lets use of the backward functionality to remove model features with low predective value as a means to see if we can come up with a more simple (in terms of number of features) and more effective (same Rsquared or better.)
 ```{r backword_model}
 backwordmodel<-step(model,direction = "backward",trace = FALSE)
@@ -126,19 +128,29 @@ m<-lm(formula = audience_score ~ genre + thtr_rel_month + imdb_rating +
 pairs(~audience_score + genre + thtr_rel_month + imdb_rating + critics_score + best_pic_nom + best_actress_win,
       data=interestdata)
 ```
+
 ####Nearly Normal Residuals
+
+
 An observation of the histogram of residuals below indicate a somewhat normal distribution with a strong right skew within the residuals. We see that most of the deviation occurs at the tail of the distriubtion when looking at the Q Q plot. It is clear that this is a linear (not binomial) distribution, so we will consider this test passed.
 ```{r}
 hist(backwordmodel$residuals, main='Histogram of Residuals')
 qqnorm(backwordmodel$residuals,main='Normal Probability Plot of Residuals')
 qqline(backwordmodel$residuals)
 ```
+
+
 ####Constant Variability of Residuals
 The chart below indicates there is constant variability of residuals
+
+
 ```{r}
 plot(backwordmodel$residuals~backwordmodel$fitted,main='Residuals vs. Predicted (fitted) ')
 ```
+
 ####Independent Residuals
+
+
 The residuals on the chart below seem to be generally homoscedastic. However, there is some degree of heteroscedasticity in the left end of the above visualization; then the model will be less accurate when predicting lower values.
 ```{r}
 plot(backwordmodel$residuals~backwordmodel$fitted,main="Residuals vs. fitted")
@@ -149,24 +161,21 @@ abline(0,0)
 
 ## Part 5: Prediction
 
-We wanted to predict the audience score for a new movie that has not been used to fit the model. For the movie "Kung Fu Panda 3." The data below, obtained from IMDB and Rotten Tomato represent each respective data point required to populate the SimpleModel.
+We wanted to predict the audience score for a new movie that has not been used to fit the model. For the movie "Lord of the rings." The data below, obtained from IMDB and Rotten Tomato represent each respective data point required to populate the backwordmodel
 
-Impressivley, the model was able to accuratrly created a range of possible values that caputred the actual audience score! The actual audience score for Kung Fu Panda 3 per Rotten Tomatoes was 79, and the model predeicted it to be 83 (rounded down to nearest whole number!) When considering the projected lower and upper boudns of the SimpleModel, we can see the predection falls within the bounds and is very close to the actual score!.
+Impressivley, the model was able to accuratrly created a range of possible values that caputred the actual audience score! The actual audience score for Lord of the rings per Rotten Tomatoes was 95, and the model predeicted it to be 8102 (rounded down to nearest whole number) When considering the projected lower and upper bounds of the backward model, we can see the predection falls within the bounds and is very close to the actual score!.
 ```{r}
-KFP3<-data.frame(genre="Animation", thtr_rel_month=1,imdb_rating=7.2,critics_score=87,best_pic_nom="no",best_actress_win="yes")
-predict(SimpleModel,KFP3)
+KFP3<-data.frame(genre="Animation", thtr_rel_month=1,imdb_rating=8.8,critics_score=20,best_pic_nom="no",best_actress_win="yes")
+predict(backwordmodel,KFP3)
 
 ```
 
 ```{r}
-predict(SimpleModel, KFP3, interval="predict") 
+predict(backwordmodel, KFP3, interval="predict") 
 ```
 
 * * *
 
 ## Part 6: Conclusion
-
-The intial research objetvice was Investigate what parameters are major influences on the audience score (audience_score.) Using the SimpleModel, generated with the approach presented above, we were able to identify a 7 feature model that had stastically significant compoenents that accurately were able to predict the audience score of a film from the year 2016 that was not included in the movies data set intially presented.
-
-Potenially using the whole data set, or introducing external factors like net sales adjusted for inflation or social media data, we could have come up with an even more effecitve model, but that can be left the the sequel to this blockbuster!
-
+Using backwordModel we were able to identify a 7 feature model that had stastically significant components that accurately were able to predict the audience score of a film from the year 2016 that was not included in the movies data set intially presented.
+To achieve more accuracy we have to look forward to get more attributes which can have more impact on prediction.
